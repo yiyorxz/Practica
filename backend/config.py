@@ -7,6 +7,15 @@ load_dotenv()
 class Config:
     SQLALCHEMY_DATABASE_URI = environ.get('DB_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+<<<<<<< HEAD
+=======
+    SECRET_KEY = 'infuct1234'
+    JWT_SECRET_KEY = 'infuctsecret24'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    JWT_HEADER_NAME = 'Authorization'
+    JWT_HEADER_TYPE = 'Bearer'
+    JWT_IDENTITY_CLAIM = 'sub'
+>>>>>>> 78bd80f89e48b77dbd938f2486790b105d59cf54
     
     # Configuración de seguridad
     SECRET_KEY = environ.get('SECRET_KEY', urandom(24).hex())
