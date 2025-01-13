@@ -28,7 +28,6 @@
         const response = await axiosInstance.post('/login/secretaria', {
           email: formData.email,
           contrasena: formData.password
-<<<<<<< HEAD
         });
     
         if (response.data.status === 'success') {
@@ -44,20 +43,6 @@
         setError(error.response?.data?.error || 'Error al conectar con el servidor');
       } finally {
         setLoading(false);
-=======
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('userData', JSON.stringify(data.secretaria));
-        
-        navigate('/ProyectosTitulo');
-      } else {
-        setError(data.error || 'Error al iniciar sesión');
->>>>>>> 78bd80f89e48b77dbd938f2486790b105d59cf54
       }
     };
 

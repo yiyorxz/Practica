@@ -88,13 +88,9 @@ def login_secretaria():
                 'status': 'error'
             }), 401
         
-<<<<<<< HEAD
         # Crear tokens
         access_token = create_access_token(identity=str(secretaria.id))
         refresh_token = create_refresh_token(identity=str(secretaria.id))
-=======
-        access_token = create_access_token(identity=str(secretaria.id))
->>>>>>> 78bd80f89e48b77dbd938f2486790b105d59cf54
         
         return jsonify({
             'message': 'Inicio de sesión exitoso',
