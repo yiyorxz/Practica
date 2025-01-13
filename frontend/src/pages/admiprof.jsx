@@ -16,11 +16,15 @@ const AdminProfesores = () => {
     const fetchProfesores = async () => {
       try {
         setLoading(true);
+        const token = localStorage.getItem('token');
+        console.log('Token actual:', token);
         const response = await axiosInstance.get('/profesores');
+        console.log('Respuesta completa:', response);
         if (response.data.status === 'success') {
           setProfesores(response.data.data);
         }
       } catch (err) {
+        console.log('Error completo:', err.response || err);
         setError('Error al cargar los profesores');
         console.error('Error:', err);
       } finally {

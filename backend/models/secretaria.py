@@ -11,7 +11,7 @@ class Secretaria(db.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'nombre': self.nombre,
             'apellido': self.apellido,
             'email': self.email

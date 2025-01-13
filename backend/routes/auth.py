@@ -1,15 +1,30 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import (
+    create_access_token, 
+    create_refresh_token,
+    jwt_required,
+    get_jwt_identity
+)
 from models.secretaria import Secretaria
-from app import db
+from app import db, jwt
 
 auth_bp = Blueprint('auth', __name__)
 
+# Manejador de tokens expirados
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({
+        'status': 'error',
+        'error': 'El token ha expirado'
+    }), 401
+
 @auth_bp.route('/registro/secretaria', methods=['POST'])
 def registrar_secretaria():
+    print("Intentando registrar secretaria")
     try:
         data = request.get_json()
+        print("Datos recibidos:", data)
         
         required_fields = ['nombre', 'apellido', 'email', 'contrasena']
         for field in required_fields:
@@ -29,18 +44,21 @@ def registrar_secretaria():
             nombre=data['nombre'],
             apellido=data['apellido'],
             email=data['email'],
-            contrasena=generate_password_hash(data['contrasena'])
+            contrasena=generate_password_hash(data['contrasena'], method='pbkdf2:sha256')
         )
         
         db.session.add(nueva_secretaria)
         db.session.commit()
         
-        access_token = create_access_token(identity=nueva_secretaria.id)
+        # Crear tokens
+        access_token = create_access_token(identity=str(nueva_secretaria.id))
+        refresh_token = create_refresh_token(identity=str(nueva_secretaria.id))
         
         return jsonify({
             'message': 'Secretaria registrada exitosamente',
             'secretaria': nueva_secretaria.to_dict(),
             'access_token': access_token,
+            'refresh_token': refresh_token,
             'status': 'success'
         }), 201
         
@@ -70,11 +88,33 @@ def login_secretaria():
                 'status': 'error'
             }), 401
         
-        access_token = create_access_token(identity=secretaria.id)
+        # Crear tokens
+        access_token = create_access_token(identity=str(secretaria.id))
+        refresh_token = create_refresh_token(identity=str(secretaria.id))
         
         return jsonify({
             'message': 'Inicio de sesión exitoso',
             'secretaria': secretaria.to_dict(),
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'status': 'success'
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
+
+@auth_bp.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    try:
+        identity = get_jwt_identity()
+        access_token = create_access_token(identity=identity)
+        
+        return jsonify({
+            'message': 'Token de acceso actualizado',
             'access_token': access_token,
             'status': 'success'
         }), 200

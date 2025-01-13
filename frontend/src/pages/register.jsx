@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../config/axiosConfig';
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nombre: '',
@@ -19,7 +20,6 @@ const LoginPage = () => {
       ...prevData,
       [id]: value
     }));
-    // Limpiar mensaje de error cuando el usuario empiece a escribir
     setError('');
   };
 
@@ -58,43 +58,26 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/registro/secretaria', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nombre: formData.nombre,
-          apellido: formData.apellido,
-          email: formData.email,
-          contrasena: formData.contrasena
-        })
+      const response = await axiosInstance.post('/registro/secretaria', {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        email: formData.email,
+        contrasena: formData.contrasena
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al registrar usuario');
-      }
-
-      if (data.status === 'success') {
-        
-        localStorage.setItem('token', data.access_token);
-        
+      if (response.data.status === 'success') {
+        localStorage.setItem('userData', JSON.stringify(response.data.secretaria));
         alert('Registro exitoso!');
-        
         navigate('/');
       } else {
-        setError(data.error || 'Error al registrar. Por favor, intente nuevamente.');
+        setError(response.data.error || 'Error al registrar. Por favor, intente nuevamente.');
       }
     } catch (error) {
-      setError(error.message || 'Error al conectar con el servidor');
+      setError(error.response?.data?.error || 'Error al conectar con el servidor');
     } finally {
       setLoading(false);
     }
   };
-
-  // El resto del código JSX permanece igual...
 
   return (
     <div
@@ -197,4 +180,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

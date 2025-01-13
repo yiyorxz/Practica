@@ -10,17 +10,18 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     
-    CORS(app, resources={
-        r"/api/*": {
-            "origins": app.config['CORS_ORIGINS'],
+    # Configuración CORS
+    CORS(app, 
+        resources={r"/api/*": {
+            "origins": Config.CORS_ORIGINS,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
+            "allow_headers": ["Content-Type", "Authorization", "X-CSRF-TOKEN"],
             "expose_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True,
-            "max_age": 3600
-        }
-    })
+            "supports_credentials": True
+        }}
+    )
     
+    # Registro de blueprints
     from routes.auth import auth_bp
     from routes.estudiantes import estudiantes_bp
     from routes.profesores import profesores_bp

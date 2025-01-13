@@ -7,9 +7,9 @@ from app import db
 profesores_bp = Blueprint('profesores', __name__)
 
 @profesores_bp.route('/profesores', methods=['GET'])
-@jwt_required()
 def obtener_profesores():
     try:
+        print("Headers recibidos:", request.headers)
         profesores = Profesor.query.filter_by(activo=True).all() 
         
         resultado = []
